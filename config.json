@@ -1,0 +1,17 @@
+{
+    "race_year": 2025,
+    "qualifying_year": 2025,
+    "historical_year": 2024,
+    "wet_comparison": {
+      "wet_year": 2019,
+      "dry_year": 2023
+    },
+    "track": "Bahrain",
+    "session_code": "R",
+    "weather": {
+      "lat": 26.0325,
+      "lon": 50.5106,
+      "api_key": "3faea8465b80ec261d5a03228fb5068e"
+    }
+  }
+  
