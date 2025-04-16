@@ -30,6 +30,6 @@ temperature = 21.0        # Default temperature in °C
 rain_probability = 0.10     # Default rain probability
        
 if __name__ == "__main__":
-    API_KEY = "3faea8465b80ec261d5a03228fb5068e"
+    API_KEY = ""
     weather = get_weather_conditions(API_KEY, lat=34.8431, lon=136.5410)
     print(weather)
