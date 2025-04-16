@@ -1,100 +1,57 @@
-import os
 import fastf1
-import requests
 import pandas as pd
-import json
 
-# Defaults for Saudi Arabia Grand Prix (Jeddah Corniche)
-FASTF1_TRACK = "SaudiArabia"
-LATITUDE = 21.6319
-LONGITUDE = 39.1046
+# Enable FastF1 cache
+fastf1.Cache.enable_cache("f1_cache")
 
+# Load the 2023 Canadian GP session data (wet race)
+session_2023 = fastf1.get_session(2023, "Canada", 'R')
+session_2023.load()
 
-def get_weather_conditions(api_key: str, lat: float = LATITUDE, lon: float = LONGITUDE) -> dict:
-    """
-    Fetch current weather data for given coordinates using OpenWeatherMap.
+# Load the 2022 Canadian GP session data (dry race)
+session_2022 = fastf1.get_session(2022, "Canada", 'R')
+session_2022.load()
 
-    Args:
-        api_key (str): Your OpenWeatherMap API key.
-        lat (float): Latitude of the location.
-        lon (float): Longitude of the location.
+# Extract the lap data for both years
+laps_2023 = session_2023.laps[["Driver", "LapTime"]].copy()
+laps_2022 = session_2022.laps[["Driver", "LapTime"]].copy()
 
-    Returns:
-        dict: Contains temperature (°C) and rain probability (0.0–1.0).
-    """
-    url = (
-        f"https://api.openweathermap.org/data/2.5/weather"
-        f"?lat={lat}&lon={lon}&units=metric&appid={api_key}"
-    )
-    response = requests.get(url, timeout=10)
-    response.raise_for_status()
-    data = response.json()
-    temperature = data.get("main", {}).get("temp")
-    rain_probability = 1.0 if data.get("rain") else 0.0
-    return {"temperature": temperature, "rain_probability": rain_probability}
+# Drop NaN values
+laps_2023.dropna(subset=["LapTime"], inplace=True)
+laps_2022.dropna(subset=["LapTime"], inplace=True)
 
+# Convert LapTime to seconds
+laps_2023["LapTime (s)"] = laps_2023["LapTime"].dt.total_seconds()
+laps_2022["LapTime (s)"] = laps_2022["LapTime"].dt.total_seconds()
 
-def compute_wet_performance(
-    wet_year: int = 2019,
-    dry_year: int = 2023,
-    session_code: str = "R",
-    api_key: str = None
-) -> dict:
-    """
-    Compare wet vs dry race sessions for the Saudi Arabia GP by default.
+# Calculate the average lap time for each driver in both races
+avg_lap_2023 = laps_2023.groupby("Driver")["LapTime (s)"].mean().reset_index()
+avg_lap_2022 = laps_2022.groupby("Driver")["LapTime (s)"].mean().reset_index()
 
-    Args:
-        wet_year: Year of the wet reference race (default 2019).
-        dry_year: Year of the dry reference race (default 2023).
-        session_code: Session code ("R" for Race, default).
-        api_key: (Optional) OpenWeatherMap key to fetch weather.
+# Merge the data from both races on 'Driver'
+merged_data = pd.merge(
+    avg_lap_2023,
+    avg_lap_2022,
+    on="Driver",
+    suffixes=("_2023", "_2022")
+)
 
-    Returns:
-        dict: Mapping of driver abbreviations to their WetPerformanceScore.
-    """
-    # Optional weather display
-    if api_key:
-        weather = get_weather_conditions(api_key)
-        print(f"Weather at Saudi Arabia GP: {weather['temperature']}°C, rain_prob={weather['rain_probability']}")
+# Calculate the performance difference in lap time between the two years
+merged_data["LapTimeDiff (s)"] = (
+    merged_data["LapTime (s)_2023"] 
+    - merged_data["LapTime (s)_2022"]
+)
 
-    # Prepare FastF1 cache
-    cache_dir = os.path.join("f1_cache", FASTF1_TRACK, f"{wet_year}_{dry_year}")
-    os.makedirs(cache_dir, exist_ok=True)
-    fastf1.Cache.enable_cache(cache_dir)
+# Calculate the percentage difference
+merged_data["PercentageChange (%)"] = (
+    merged_data["LapTimeDiff (s)"] 
+    / merged_data["LapTime (s)_2022"] 
+    * 100
+)
 
-    # Load sessions
-    print(f"Loading {wet_year} wet session for Saudi Arabia ({session_code})...")
-    wet_session = fastf1.get_session(wet_year, FASTF1_TRACK, session_code)
-    wet_session.load()
-    print(f"Loading {dry_year} dry session for Saudi Arabia ({session_code})...")
-    dry_session = fastf1.get_session(dry_year, FASTF1_TRACK, session_code)
-    dry_session.load()
+# Now create the wet performance score
+merged_data["WetPerformanceScore"] = 1 + (merged_data["PercentageChange (%)"] / 100)
 
-    # Extract and convert lap times
-    laps_wet = wet_session.laps.dropna(subset=["LapTime"]).loc[:, ["Driver", "LapTime"]].copy()
-    laps_dry = dry_session.laps.dropna(subset=["LapTime"]).loc[:, ["Driver", "LapTime"]].copy()
-    laps_wet["wet_s"] = laps_wet["LapTime"].dt.total_seconds()
-    laps_dry["dry_s"] = laps_dry["LapTime"].dt.total_seconds()
-
-    # Compute averages
-    avg_wet = laps_wet.groupby("Driver")["wet_s"].mean()
-    avg_dry = laps_dry.groupby("Driver")["dry_s"].mean()
-    df = pd.concat([avg_wet, avg_dry], axis=1).dropna()
-
-    # Compute performance scores
-    df["diff_s"] = df["wet_s"] - df["dry_s"]
-    df["pct_change"] = df["diff_s"] / df["dry_s"] * 100
-    df["WetPerformanceScore"] = 1 + df["pct_change"] / 100
-
-    # Format output with six decimal places
-    formatted = {drv: float(f"{sc:.6f}") for drv, sc in df["WetPerformanceScore"].to_dict().items()}
-    print(json.dumps(formatted, separators=(', ', ': ')))
-    return formatted
-
-# Alias
-get_wet_score = compute_wet_performance
-
-if __name__ == "__main__":
-    # Compute for Saudi Arabia GP with default years 2019 vs 2023
-    OPENWEATHER_API_KEY = ""
-    compute_wet_performance(api_key=OPENWEATHER_API_KEY)
+# Print the result
+print("\nDriver Wet Performance Table")
+print(merged_data[["Driver", "WetPerformanceScore"]].to_string(index=False))
