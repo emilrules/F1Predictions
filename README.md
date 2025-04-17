@@ -1,8 +1,3 @@
-
-
----
-
-```markdown
 # 🏁 F1 Race Predictor 2025
 
 Welcome to **F1 Race Predictor 2025** — a machine learning–powered project that uses real-time qualifying data, historical race insights, and live weather to forecast race results for the 2025 Formula 1 season.
@@ -76,6 +71,3 @@ This project is independently built but inspired by [@mar-antaya](https://github
 ---
 
 🏎 Built with love for data, racing, and ridiculous sector 3 exits.
-```
-
-Let me know if you'd like a version specifically tailored for GitHub formatting or deployment to Hugging Face/Streamlit.
