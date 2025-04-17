@@ -60,6 +60,10 @@ Mean Absolute Error: 2.91 seconds
 - `team_performance_effect.png`: Impact of team strength on predicted results
 - Feature importance bar chart: Understand which factors influenced the prediction
 
+## 💪 Working Versions
+- predictionsv5.py 
+- predictionsv4.py
+
 ## 🔮 Planned Features
 
 - Add pit stop strategies and tire degradation factors
