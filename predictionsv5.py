@@ -57,6 +57,7 @@ response = requests.get(weather_url)
 weather_data = response.json()
 rain_probability = weather_data.get("pop", 0)
 temperature = weather_data.get("main", {}).get("temp", 20)
+print(f"🏁 Bahrain GP Weather → Temp: {temperature}°C, Rain Prob: {rain_probability}")
 
 # Adjust qualifying time if rain is likely
 if rain_probability > 0.75:
