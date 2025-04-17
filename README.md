@@ -29,16 +29,16 @@ Make sure you have the following libraries installed:
 pip install fastf1 pandas numpy scikit-learn matplotlib requests
 ```
 
-You'll also need an OpenWeatherMap API key, stored securely as an environment variable:
+You'll also need an OpenWeatherMap API key, store it locally through powershell
 
-```bash
-export OPENWEATHER_API_KEY=your_key_here
+```
+set OPENWEATHER_API_KEY=your_actual_key_here
 ```
 
 ## 🛠️ Running a Prediction
 
 ```bash
-python3 prediction_saudi.py
+python3 predictionv#
 ```
 
 ### Example Output
