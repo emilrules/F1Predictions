@@ -1,5 +1,7 @@
 # data/weather_config.py
 import requests
+import os
+API_KEY = os.getenv("OPENWEATHER_API_KEY")
 
 def get_weather_conditions(api_key, lat, lon):
     """
@@ -13,6 +15,7 @@ def get_weather_conditions(api_key, lat, lon):
     Returns:
         dict: Contains temperature (in °C) and rain probability.
     """
+    API_KEY = api_key
     url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={api_key}"
     response = requests.get(url)
     data = response.json()
@@ -30,6 +33,5 @@ temperature = 21.0        # Default temperature in °C
 rain_probability = 0.10     # Default rain probability
        
 if __name__ == "__main__":
-    API_KEY = ""
     weather = get_weather_conditions(API_KEY, lat=34.8431, lon=136.5410)
     print(weather)

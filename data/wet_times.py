@@ -5,11 +5,11 @@ import pandas as pd
 fastf1.Cache.enable_cache("f1_cache")
 
 # Load the 2023 Canadian GP session data (wet race)
-session_2023 = fastf1.get_session(2023, "Canada", 'R')
+session_2023 = fastf1.get_session(2023, "Saudi Arabia", 'R')
 session_2023.load()
 
 # Load the 2022 Canadian GP session data (dry race)
-session_2022 = fastf1.get_session(2022, "Canada", 'R')
+session_2022 = fastf1.get_session(2022, "Saudi Arabia", 'R')
 session_2022.load()
 
 # Extract the lap data for both years
@@ -52,6 +52,10 @@ merged_data["PercentageChange (%)"] = (
 # Now create the wet performance score
 merged_data["WetPerformanceScore"] = 1 + (merged_data["PercentageChange (%)"] / 100)
 
-# Print the result
-print("\nDriver Wet Performance Table")
-print(merged_data[["Driver", "WetPerformanceScore"]].to_string(index=False))
+# Round to 6 decimals and convert to dictionary
+formatted = {row["Driver"]: round(row["WetPerformanceScore"], 6) for _, row in merged_data.iterrows()}
+
+# Print in your desired format
+for driver, score in formatted.items():
+    print(f'"{driver}": {score},')
+
