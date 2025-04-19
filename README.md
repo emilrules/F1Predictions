@@ -61,7 +61,7 @@ Mean Absolute Error: 2.91 seconds
 - Feature importance bar chart: Understand which factors influenced the prediction
 
 ## 💪 Working Versions
-- predictionsv5.py 
+- all versions of predictionsv5.py - Points to VER 93.567872
 - predictionsv4.py
 
 ## 🔮 Planned Features
