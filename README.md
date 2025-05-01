@@ -61,8 +61,11 @@ Mean Absolute Error: 2.91 seconds
 - Feature importance bar chart: Understand which factors influenced the prediction
 
 ## 💪 Working Versions
+```
+- predictionsv6 coming up for the Milan race
 - all versions of predictionsv5.py (Predicted VER, but didnt win due to penalty) 
 - predictionsv4.py
+```
 
 ## 🔮 Planned Features
 
