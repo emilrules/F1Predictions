@@ -63,6 +63,7 @@ Mean Absolute Error: 2.91 seconds
 ## 💪 Working Versions
 ```
 - predictionsv6 coming up for the Milan race
+- race_pace is also being updated
 - all versions of predictionsv5.py (Predicted VER, but didnt win due to penalty) 
 - predictionsv4.py
 ```
